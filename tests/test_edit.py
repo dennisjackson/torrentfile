@@ -197,7 +197,7 @@ def test_edit_removal(metafile2):
 @pytest.mark.parametrize("announce", [["url1", "url2", "url3"], ["url1"]])
 @pytest.mark.parametrize("webseed", [["ftp1"], ["ftpa", "ftpb"]])
 @pytest.mark.parametrize("httpseed", [["ftp1"], ["ftpa", "ftpb"]])
-def test_edit_cli(metafile2, comment, source, announce, webseed, httpseed):
+def test_edit_cli_private(metafile2, comment, source, announce, webseed, httpseed):
     """
     Test edit torrent with all params on cli.
     """
@@ -223,6 +223,39 @@ def test_edit_cli(metafile2, comment, source, announce, webseed, httpseed):
     assert comment == info.get("comment")
     assert source == info.get("source")
     assert info.get("private") == 1
+    assert meta["announce-list"] == [[announce]]
+    assert meta["url-list"] == [webseed]
+
+@pytest.mark.parametrize("comment", ["commenta", "commentb", "commentc"])
+@pytest.mark.parametrize("source", ["sourcea", "sourceb", "sourcec"])
+@pytest.mark.parametrize("announce", [["url1", "url2", "url3"], ["url1"]])
+@pytest.mark.parametrize("webseed", [["ftp1"], ["ftpa", "ftpb"]])
+@pytest.mark.parametrize("httpseed", [["ftp1"], ["ftpa", "ftpb"]])
+def test_edit_cli_public(metafile2, comment, source, announce, webseed, httpseed):
+    """
+    Test edit torrent with all params on cli.
+    """
+    sys.argv = [
+        "torrentfile",
+        "edit",
+        metafile2,
+        "--comment",
+        comment,
+        "--source",
+        source,
+        "--web-seed",
+        webseed,
+        "--http-seed",
+        httpseed,
+        "--tracker",
+        announce,
+    ]
+    main()
+    meta = pyben.load(metafile2)
+    info = meta["info"]
+    assert comment == info.get("comment")
+    assert source == info.get("source")
+    assert info.get("private") == 0
     assert meta["announce-list"] == [[announce]]
     assert meta["url-list"] == [webseed]
 
